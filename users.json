@@ -1,0 +1,32 @@
+{
+    "kuzya": {
+        "password": "12345",
+        "birth_date": "1988-04-12",
+        "quiz_results": {
+            "Змішана": [
+                {
+                    "category": "Змішана",
+                    "score": 8,
+                    "date": "2024-12-18 17:08:24"
+                },
+                {
+                    "category": "Змішана",
+                    "score": 8,
+                    "date": "2024-12-18 19:23:09"
+                }
+            ],
+            "біологія": [
+                {
+                    "category": "біологія",
+                    "score": 1,
+                    "date": "2024-12-18 20:52:34"
+                }
+            ]
+        }
+    },
+    "admin": {
+        "password": "admin999",
+        "birth_date": "",
+        "quiz_results": {}
+    }
+}
