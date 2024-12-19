@@ -16,9 +16,29 @@ class IQuizDataManager(ABC):
 
 class QuizDataManager(IQuizDataManager):
     def __init__(self, file_path='questions.json'):
+        """
+        Initializes a QuizDataManager instance.
+
+        Args:
+            file_path (str): The path to the JSON file where questions
+            are stored. Defaults to 'questions.json'.
+        """
         self.file_path = file_path
 
     def get_questions(self):
+        """
+        Reads the questions from the JSON file specified by `file_path`.
+
+        Returns:
+            list: A list of questions from the JSON file. If the file
+            is not found or if there is a JSON decode error, an empty
+            list is returned.
+
+        Raises:
+            FileNotFoundError: If the specified file does not exist.
+            json.JSONDecodeError: If there is an error in decoding the
+            JSON file.
+        """
         try:
             with open(self.file_path, "r", encoding="utf-8") as file:
                 data = json.load(file)
@@ -30,6 +50,16 @@ class QuizDataManager(IQuizDataManager):
             return []
 
     def save_questions(self, questions):
+        """
+        Writes the questions to the JSON file specified by `file_path`.
+
+        Args:
+            questions (list): A list of questions to be written to the file.
+
+        Raises:
+            FileNotFoundError: If the specified file does not exist.
+            json.JSONDecodeError: If there is an error in encoding the JSON file.
+        """
         data = {"questions": questions}
         try:
             with open(self.file_path, "w", encoding="utf-8") as file:
@@ -55,6 +85,14 @@ class VictorineUtilityMenu(IVictorineUtility):
             self, quiz_data_manager: IQuizDataManager,
             console: Console = Console()
     ):
+        """
+        Initializes a VictorineUtilityMenu instance.
+
+        Args:
+            quiz_data_manager (IQuizDataManager): An object to manage quiz data.
+            console (Console, optional): A Console object for displaying output. Defaults to a new Console instance.
+        """
+
         self.console = console
         self.quiz_data_manager = quiz_data_manager
         self.menu = {
@@ -66,6 +104,16 @@ class VictorineUtilityMenu(IVictorineUtility):
         }
 
     def display_menu(self):
+        """
+        Displays the quiz menu.
+
+        This method presents the quiz menu options to the user in a
+        formatted table. Each menu option is displayed with an option
+        number and a description. The user can then enter the number
+        corresponding to their desired action.
+
+        :return: None
+        """
         table = Table(title="Меню вікторин")
         table.add_column()
         table.add_column()
@@ -76,6 +124,15 @@ class VictorineUtilityMenu(IVictorineUtility):
         self.console.print(table)
 
     def get_unique_categories(self):
+        """
+        Retrieves a sorted list of unique categories from the questions dataset.
+
+        This method queries the QuizDataManager for all questions and extracts
+        the category from each question. The categories are stored in a set and
+        then converted to a sorted list before being returned.
+
+        :return: A sorted list of strings, each representing a unique category.
+        """
         questions = self.quiz_data_manager.get_questions()
         categories = set()
 
@@ -86,10 +143,31 @@ class VictorineUtilityMenu(IVictorineUtility):
         return sorted(categories)
 
     def get_questions_by_category(self, category):
+        """
+        Retrieves a list of questions for a specified category.
+
+        This method filters the questions dataset to include only those
+        questions that belong to the given category.
+
+        Args:
+            category (str): The category for which to retrieve questions.
+
+        Returns:
+            list: A list of questions that belong to the specified category.
+        """
         questions = self.quiz_data_manager.get_questions()
         return [q for q in questions if q["category"] == category]
 
     def delete_quiz(self):
+        """
+        Deletes all questions from a specified category.
+
+        This method displays a menu of all available categories and allows the user
+        to select a category to delete. Once a category is selected, all questions
+        belonging to that category are removed from the dataset.
+
+        :return: None
+        """
         categories = self.get_unique_categories()
         if not categories:
             print("Немає доступних категорій для видалення.")
@@ -118,6 +196,17 @@ class VictorineUtilityMenu(IVictorineUtility):
             print("Невірний вибір.")
 
     def remove_category_questions(self, category):
+        """
+        Removes all questions from the specified category.
+
+        This method filters out questions that belong to the given category
+        from the dataset and saves the remaining questions. It then prints a
+        confirmation message indicating that all questions from the specified
+        category have been deleted.
+
+        Args:
+            category (str): The category from which questions should be removed.
+        """
         questions = self.quiz_data_manager.get_questions()
         filtered_questions = [
             q for q in questions if q["category"] != category
@@ -127,6 +216,24 @@ class VictorineUtilityMenu(IVictorineUtility):
         print(f"Усі запитання з категорії '{category}' були видалені.")
 
     def add_quiz(self):
+        """
+        Adds a new question to the specified category.
+
+        This method first prompts the user to enter the category to which
+        the new question should be added. It then enters a loop where it
+        repeatedly prompts the user to enter the following information until
+        the user chooses to stop:
+
+        1. The text of the question
+        2. A comma-separated list of options
+        3. A comma-separated list of correct answers
+
+        For each question, the entered information is stored in a dictionary
+        and added to the list of all questions. The updated list of questions
+        is then saved to the dataset.
+
+        :return: None
+        """
         category = input("Введіть категорію для вікторини: ")
         questions = self.quiz_data_manager.get_questions()
 
@@ -155,6 +262,16 @@ class VictorineUtilityMenu(IVictorineUtility):
                 break
 
     def edit_quiz(self):
+        """
+        Edits questions within a specified category.
+
+        This method displays a menu of all available categories and allows the user
+        to select a category for editing. Once a category is selected, the questions
+        within that category are displayed, and the user can choose a question to edit.
+
+        :return: None
+        """
+
         categories = self.get_unique_categories()
         if not categories:
             print("Немає доступних категорій для редагування.")
@@ -185,6 +302,17 @@ class VictorineUtilityMenu(IVictorineUtility):
             print("Невірний вибір.")
 
     def display_questions_for_editing(self, questions):
+        """
+        Displays the questions in a given category for editing.
+
+        This method displays a table of questions within a given category and
+        allows the user to select a question to edit. Once a question is selected,
+        the user is prompted to edit the question, and the edited question is
+        saved to the dataset.
+
+        :param questions: The list of questions to display for editing.
+        :return: None
+        """
         if not questions:
             print("Немає запитань у цій категорії.")
             return
@@ -212,6 +340,19 @@ class VictorineUtilityMenu(IVictorineUtility):
             print("Невірний вибір.")
 
     def edit_question(self, question, all_questions):
+        """
+        Edits a given question within the dataset.
+
+        This method allows the user to modify the text, options, and correct answers
+        of a specified question. The updated question is then saved back into the
+        overall list of questions.
+
+        :param question: The question dictionary to be edited.
+        :param all_questions: The list of all questions, used to update the specific
+                              question with new data.
+        :return: None
+        """
+
         print(f"Редагуємо питання: {question['question']}")
         new_question_text = input("Введіть нове запитання: ")
         if new_question_text:
@@ -264,6 +405,23 @@ class VictorineUtilityMenu(IVictorineUtility):
             self.console.print(table)
 
     def run(self):
+        """
+        Runs the Victorine utility menu, allowing the user to add, delete, edit,
+        or view quizzes, as well as exit the application.
+
+        This method continuously displays the Victorine utility menu to the user,
+        allowing them to choose between adding a new quiz, deleting an existing
+        quiz, editing an existing quiz, viewing all quizzes, or exiting the
+        application. Based on the user's input, it directs them to the appropriate
+        action. The loop continues until the user chooses to exit.
+
+        User Options:
+            1. Add a new quiz.
+            2. Delete an existing quiz.
+            3. Edit an existing quiz.
+            4. View all quizzes.
+            5. Exit the application.
+        """
         while True:
             self.display_menu()
             choice = input("Оберіть опцію: ")
