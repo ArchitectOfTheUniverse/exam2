@@ -1,0 +1,53 @@
+import pytest
+from quiz_category import MixedCategory, SpecificCategory  # Імпортуємо необхідні класи
+
+
+# Фікстура для надання тестових даних
+@pytest.fixture
+def sample_questions():
+    return [
+        {'answer': '4', 'category': 'math', 'question': 'What is 2 + 2?'},
+        {'answer': 'Paris', 'category': 'geography', 'question': 'What is the capital of France?'},
+        {'answer': 'George Orwell', 'category': 'literature', 'question': 'Who wrote "1984"?'},
+        {'answer': '299,792,458 m/s', 'category': 'science', 'question': 'What is the speed of light?'},
+        {'answer': 'Earth', 'category': 'science', 'question': 'What is our planet?'}
+        # Додано ще одне питання до science
+    ]
+
+
+# Тест для MixedCategory
+def test_mixed_category_get_questions(sample_questions):
+    mixed_category = MixedCategory(sample_questions)
+    mixed_category.load_questions()
+
+    # Перевірка на отримання питань
+    questions = mixed_category.get_questions()
+    assert len(questions) <= 20  # Перевірка, що не більше 20 питань
+    assert all(isinstance(q, dict) for q in questions)  # Перевірка, що кожне питання — це словник
+
+
+# Тест для SpecificCategory
+def test_specific_category_get_questions(sample_questions):
+    specific_category = SpecificCategory(sample_questions, 'science')
+    specific_category.load_questions()
+
+    # Перевірка на отримання питань для категорії science
+    questions = specific_category.get_questions()
+    assert len(questions) == 2  # В категорії science має бути 2 питання
+    assert all(q['category'] == 'science' for q in questions)  # Перевірка категорії кожного питання
+
+
+# Тест для перевірки попередження при недостатній кількості питань
+def test_specific_category_warning_on_shortage_of_questions(monkeypatch, sample_questions):
+    # Мокаємо print для перевірки виведення
+    printed_output = []
+    monkeypatch.setattr('builtins.print', lambda x: printed_output.append(x))
+
+    # Тестуємо SpecificCategory, коли запитань недостатньо для вибору 20
+    specific_category = SpecificCategory(sample_questions, 'history')
+    specific_category.load_questions()
+
+    # Перевіряємо, чи виводиться попередження, якщо питань недостатньо
+    assert printed_output
+    expected_warning = "У категорії history недостатньо питань. Вибрано лише 0 питань"
+    assert printed_output[0].strip() == expected_warning  # Використовуємо strip для очищення від кодів кольору

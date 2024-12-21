@@ -1,0 +1,36 @@
+import os
+import json
+import pytest
+from unittest.mock import patch, mock_open
+from quiz_loader import QuizLoader
+
+
+@pytest.fixture
+def quiz_loader():
+    return QuizLoader()
+
+
+def test_load_questions_file_exists(quiz_loader):
+    mock_data = {"questions": [{"question": "Test question?", "answer": "Test answer"}]}
+    with patch("builtins.open", mock_open(read_data=json.dumps(mock_data))):
+        with patch("os.path.exists", return_value=True):
+            questions = quiz_loader.load_questions()
+            assert questions == mock_data["questions"]
+
+
+def test_load_questions_file_not_found(quiz_loader):
+    with patch("os.path.exists", return_value=False):
+        with patch("builtins.print") as mock_print:
+            questions = quiz_loader.load_questions()
+            assert questions == []
+            mock_print.assert_called_with("\x1b[31m\u0424\u0430\u0439\u043b \u0437 \u0437\u0430\u043f\u0438\
+            u0442\u0430\u043d\u043d\u044f\u043c\u0438 "
+                                          "\u043d\u0435 \u0437\u043d\u0430\u0439\u0434\u0435\u043d\u043e!\x1b[0m")
+
+
+def test_load_questions_invalid_data(quiz_loader):
+    invalid_data = "invalid json"
+    with patch("builtins.open", mock_open(read_data=invalid_data)):
+        with patch("os.path.exists", return_value=True):
+            with pytest.raises(json.JSONDecodeError):
+                quiz_loader.load_questions()

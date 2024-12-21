@@ -1,0 +1,116 @@
+import pytest
+from quiz_loader import QuizLoader
+from quiz_category import MixedCategory, SpecificCategory
+from user_manager import UserManager
+from quiz_result_manager import QuizResultManager
+from quiz_orchestrator import QuizOrchestrator
+
+
+@pytest.fixture
+def sample_questions():
+    return [
+        {
+            "category": "гeографія",
+            "question": "Яка найбільша країна за площею?",
+            "options": [
+                "Канада",
+                "Росія",
+                "Китай",
+                "США"
+            ],
+            "correct_answers": [
+                "Росія"
+            ]
+        },
+        {
+            "category": "гeографія",
+            "question": "Яка річка є найдовшою у світі?",
+            "options": [
+                "Ніл",
+                "Амазонка",
+                "Міссісіпі",
+                "Янцзи"
+            ],
+            "correct_answers": [
+                "Ніл"
+            ]
+        }
+    ]
+
+
+@pytest.fixture
+def user_manager():
+    return UserManager()
+
+
+@pytest.fixture
+def quiz_loader(sample_questions, tmp_path):
+    question_file = tmp_path / "questions.json"
+    question_file.write_text('{"questions": ' + str(sample_questions).replace("'", '"') + '}')
+    return QuizLoader()
+
+
+@pytest.fixture
+def result_manager(user_manager):
+    return QuizResultManager(user_manager)
+
+
+
+
+
+def test_quiz_loader_load_questions(quiz_loader, sample_questions):
+    questions = quiz_loader.load_questions()
+    assert len(questions) == len(sample_questions)
+    assert all(
+        key in questions[0]
+        for key in ["category", "question", "options", "correct_answers"]
+    )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
