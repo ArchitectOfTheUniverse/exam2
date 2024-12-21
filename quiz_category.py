@@ -68,7 +68,7 @@ class MixedCategory(QuizCategory):
         return self.questions
 
     def get_questions(self) -> List[Dict]:
-        return random.sample(self.questions, 20)
+        return random.sample(self.questions, min(len(self.questions), 20))
 
 
 class SpecificCategory(QuizCategory):

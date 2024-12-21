@@ -301,7 +301,7 @@ class VictorineUtilityMenu(IVictorineUtility):
         except ValueError:
             print("Невірний вибір.")
 
-    def display_questions_for_editing(self, questions):
+    def display_questions_for_editing(self, questions_in_category):
         """
         Displays the questions in a given category for editing.
 
@@ -310,10 +310,10 @@ class VictorineUtilityMenu(IVictorineUtility):
         the user is prompted to edit the question, and the edited question is
         saved to the dataset.
 
-        :param questions: The list of questions to display for editing.
+        :param questions_in_category: The list of questions in the selected category.
         :return: None
         """
-        if not questions:
+        if not questions_in_category:
             print("Немає запитань у цій категорії.")
             return
 
@@ -321,19 +321,20 @@ class VictorineUtilityMenu(IVictorineUtility):
         table.add_column("№", justify="center")
         table.add_column("Запитання", justify="center")
 
-        for idx, question in enumerate(questions, 1):
+        for idx, question in enumerate(questions_in_category, 1):
             table.add_row(str(idx), question["question"])
 
         self.console.print(table)
 
         question_choice = input(
-            f"Оберіть запитання для редагування (1-{len(questions)}): "
+            f"Оберіть запитання для редагування (1-{len(questions_in_category)}): "
         )
         try:
             question_choice = int(question_choice)
-            if 1 <= question_choice <= len(questions):
-                selected_question = questions[question_choice - 1]
-                self.edit_question(selected_question, questions)
+            if 1 <= question_choice <= len(questions_in_category):
+                selected_question = questions_in_category[question_choice - 1]
+                all_questions = self.quiz_data_manager.get_questions()
+                self.edit_question(selected_question, all_questions)
             else:
                 print("Невірний вибір питання.")
         except ValueError:
@@ -348,12 +349,14 @@ class VictorineUtilityMenu(IVictorineUtility):
         overall list of questions.
 
         :param question: The question dictionary to be edited.
-        :param all_questions: The list of all questions, used to update the specific
-                              question with new data.
+        :param all_questions: The list of all questions from the file.
         :return: None
         """
-
         print(f"Редагуємо питання: {question['question']}")
+
+        original_question = question['question']
+        original_category = question['category']
+
         new_question_text = input("Введіть нове запитання: ")
         if new_question_text:
             question['question'] = new_question_text
@@ -366,10 +369,10 @@ class VictorineUtilityMenu(IVictorineUtility):
         if new_answers:
             question['correct_answers'] = new_answers.split(',')
 
-        # Оновлюємо питання в списку
         for idx, q in enumerate(all_questions):
-            if q['question'] == question['question']:
+            if q['question'] == original_question and q['category'] == original_category:
                 all_questions[idx] = question
+                break
 
         self.quiz_data_manager.save_questions(all_questions)
         print("Питання було успішно змінено.")
