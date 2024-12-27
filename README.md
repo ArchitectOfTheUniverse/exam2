@@ -36,12 +36,6 @@ The **Quiz Application** is designed to allow users to test their knowledge in v
 
 ---
 
-## Design Principles  
-- **SOLID Principles**: Applied to ensure maintainable, scalable, and flexible code.  
-- **Design Patterns**: Includes patterns like Singleton, Strategy, Observer, and Factory to enhance code structure.  
-
----
-
 ## Technologies  
 - **Programming Language**: Python  
 - **Libraries**:  
